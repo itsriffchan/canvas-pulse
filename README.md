@@ -16,6 +16,20 @@ A Chrome extension that brings your Canvas deadlines and tasks to your fingertip
 
 ## Installation
 
+### From Release (Zip File) - Easiest
+
+1. **Download the latest release** from the [Releases page](https://github.com/itsriffchan/canvas-pulse/releases)
+
+2. **Extract the zip file** to a folder on your computer
+
+3. **Open Chrome** and navigate to `chrome://extensions/`
+
+4. **Enable Developer Mode** - Toggle the switch in the top right corner.
+
+5. **Click "Load unpacked"** and select the extracted folder.
+
+6. The extension should now appear in your Chrome toolbar. Click the icon to open Canvas Pulse.
+
 ### From Source (Development)
 
 1. **Clone or download** this repository to your local machine.
