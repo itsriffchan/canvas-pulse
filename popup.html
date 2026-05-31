@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Canvas Pulse</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-wrapper">
+    <!-- Header -->
+    <div class="dashboard-header">
+      <div class="header-left">
+        <img class="header-icon" src="icons/icon48.png" alt="Canvas Pulse Logo">
+        <h2 class="gradient-text" id="view-title">Canvas Pulse</h2>
+      </div>
+      <div class="header-actions">
+        <button id="add-task-btn" class="icon-btn" title="Add Manual Task">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
+        <button id="settings-btn" class="icon-btn" title="Settings">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Static Tabs -->
+    <div class="view-tabs" id="popup-tabs">
+      <button class="tab-btn active" data-tab="deadlines">Deadlines</button>
+      <button class="tab-btn" data-tab="unscheduled">Unscheduled</button>
+      <button class="tab-btn" data-tab="completed">Completed</button>
+    </div>
+
+    <!-- Main Content Area -->
+    <div id="main-content">
+      <!-- Task List View -->
+      <div id="task-list-view">
+        <div id="task-list" class="task-container">
+          <div class="empty-state">
+            <div class="loader"></div>
+            <p>Fetching your deadlines...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add Menu View (Hidden) -->
+      <div id="add-menu-view" class="view-container" style="display: none;">
+        <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 0.5rem;">
+          
+          <div id="opt-custom-task" class="glass-panel hover-card" style="padding: 1rem 1.25rem; cursor: pointer; display: flex; align-items: center; gap: 1rem; border-radius: 12px;">
+            <div style="background: rgba(255, 71, 87, 0.15); color: var(--accent-primary); padding: 0.75rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
+            </div>
+            <div style="flex: 1; text-align: left; min-width: 0;">
+              <h4 style="margin: 0 0 0.2rem 0; font-size: 0.9rem; font-weight: 600; color: var(--text-primary);">Create Custom Task</h4>
+              <p style="margin: 0; font-size: 0.75rem; color: var(--text-secondary); line-height: 1.3;">Add a blank task from scratch with your own details.</p>
+            </div>
+          </div>
+
+          <div id="opt-browse-courses" class="glass-panel hover-card" style="padding: 1rem 1.25rem; cursor: pointer; display: flex; align-items: center; gap: 1rem; border-radius: 12px;">
+            <div style="background: rgba(255, 127, 80, 0.15); color: var(--accent-secondary); padding: 0.75rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path><path d="M6 6h10M6 10h10"></path></svg>
+            </div>
+            <div style="flex: 1; text-align: left; min-width: 0;">
+              <h4 style="margin: 0 0 0.2rem 0; font-size: 0.9rem; font-weight: 600; color: var(--text-primary);">Browse Course Assessments</h4>
+              <p style="margin: 0; font-size: 0.75rem; color: var(--text-secondary); line-height: 1.3;">Browse specific course assignments to create a custom task.</p>
+            </div>
+          </div>
+
+          <div id="opt-browse-canvas" class="glass-panel hover-card" style="padding: 1rem 1.25rem; cursor: pointer; display: flex; align-items: center; gap: 1rem; border-radius: 12px;">
+            <div style="background: rgba(165, 94, 234, 0.15); color: #a55eea; padding: 0.75rem; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            </div>
+            <div style="flex: 1; text-align: left; min-width: 0;">
+              <h4 style="margin: 0 0 0.2rem 0; font-size: 0.9rem; font-weight: 600; color: var(--text-primary);">Browse Sync Deadlines</h4>
+              <p style="margin: 0; font-size: 0.75rem; color: var(--text-secondary); line-height: 1.3;">Select and adjust dates for synced upcoming assignments.</p>
+            </div>
+          </div>
+
+          <button id="cancel-menu-btn" class="secondary-btn" style="margin-top: 0.5rem; width: 100%;">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Browse Sync Deadlines View (Hidden) -->
+      <div id="browse-assignments-view" class="view-container" style="display: none; flex: 1; min-height: 320px; flex-direction: column;">
+        <div style="margin-bottom: 0.75rem; position: relative;">
+          <input type="text" id="assignment-search" placeholder="Search synced assignments..." style="padding-left: 2.25rem;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); color: var(--text-secondary); opacity: 0.7;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </div>
+        
+        <div id="browse-list" style="flex: 1; overflow-y: auto; padding-right: 2px; margin-bottom: 1rem;">
+          <!-- Synced Canvas assignments rendered dynamically -->
+        </div>
+
+        <button id="back-browse-btn" class="secondary-btn" style="width: 100%; padding: 0.45rem 1rem; font-size: 0.8rem; border-radius: 6px; margin-top: auto;">Back</button>
+      </div>
+
+      <!-- Browse Courses View (Hidden) -->
+      <div id="browse-courses-view" class="view-container" style="display: none; flex: 1; min-height: 320px; flex-direction: column;">
+        <div style="margin-bottom: 0.75rem; position: relative;">
+          <input type="text" id="course-search" placeholder="Search courses..." style="padding-left: 2.25rem;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); color: var(--text-secondary); opacity: 0.7;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </div>
+        
+        <div id="courses-list" style="flex: 1; overflow-y: auto; padding-right: 2px; margin-bottom: 1rem;">
+          <!-- Active courses rendered dynamically -->
+        </div>
+
+        <button id="back-courses-btn" class="secondary-btn" style="width: 100%; padding: 0.45rem 1rem; font-size: 0.8rem; border-radius: 6px; margin-top: auto;">Back</button>
+      </div>
+
+      <!-- Course Assignments View (Hidden) -->
+      <div id="course-assignments-view" class="view-container" style="display: none; flex: 1; min-height: 320px; flex-direction: column;">
+        <div style="margin-bottom: 0.75rem; position: relative;">
+          <input type="text" id="course-assignment-search" placeholder="Search assessments..." style="padding-left: 2.25rem;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); color: var(--text-secondary); opacity: 0.7;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </div>
+        
+        <div id="course-assignments-list" style="flex: 1; overflow-y: auto; padding-right: 2px; margin-bottom: 1rem;">
+          <!-- Course assignments rendered dynamically -->
+        </div>
+
+        <button id="back-course-assignments-btn" class="secondary-btn" style="width: 100%; padding: 0.45rem 1rem; font-size: 0.8rem; border-radius: 6px; margin-top: auto;">Back</button>
+      </div>
+
+      <!-- Add Task View (Hidden) -->
+      <div id="add-task-view" class="view-container" style="display: none;">
+        <div class="form-group">
+          <label>Task Title</label>
+          <input type="text" id="new-task-title" placeholder="e.g. History Essay">
+        </div>
+        <div class="form-group">
+          <label>Due Date (Optional)</label>
+          <input type="datetime-local" id="new-task-date">
+        </div>
+        <div class="form-group">
+          <label>Schedule Date (Optional)</label>
+          <input type="date" id="new-task-schedule">
+        </div>
+        <div class="form-group">
+          <label>Course / Category</label>
+          <input type="text" id="new-task-course" placeholder="e.g. History 101">
+        </div>
+        <div class="actions-row">
+          <button id="save-task-btn" class="primary-btn">Save Task</button>
+          <button id="cancel-add-btn" class="secondary-btn">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Settings View (Hidden) -->
+      <div id="settings-view" class="view-container" style="display: none;">
+        <div class="form-group">
+          <label>Canvas Base URL</label>
+          <input type="text" id="canvas-url" placeholder="https://canvas.yourschool.edu">
+          <p class="help-text">Your university's Canvas URL (required).</p>
+        </div>
+        <div class="form-group">
+          <label>API Access Token</label>
+          <input type="password" id="api-token" placeholder="Paste your token here">
+          <p class="help-text">Generate this in Canvas > Account > Settings > New Access Token.</p>
+        </div>
+        <div class="actions-row">
+          <button id="save-settings-btn" class="primary-btn">Save Settings</button>
+          <button id="back-to-tasks-btn" class="secondary-btn">Back to Tasks</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
