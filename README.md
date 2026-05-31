@@ -110,8 +110,4 @@ A Chrome extension that brings your Canvas deadlines and tasks to your fingertip
 
 ## License
 
-This project is open source. Feel free to modify and use it as needed.
-
-## Contributing
-
-Found a bug or have a feature request? Feel free to open an issue or submit a pull request!
+_This project is open-source and can be modified freely._
