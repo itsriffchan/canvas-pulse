@@ -1,7 +1,7 @@
 # Canvas Pulse
 
 A Chrome extension that brings your Canvas deadlines and tasks to your fingertips—no need to visit the Canvas site and works even when your Canvas login has expired.
-
+Basically a stripped down version of BetterCampus cuz it was too bloated for me
 ## Features
 
 ✨ **Check Deadlines & Tasks Without Leaving Your Browser** - View all your upcoming Canvas assignments, due dates, and custom tasks from the extension popup without navigating to Canvas.
