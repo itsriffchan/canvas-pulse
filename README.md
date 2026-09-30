@@ -14,6 +14,8 @@ A Chrome extension that brings your Canvas deadlines and tasks to your fingertip
 
 🎯 **Smart Task Filtering** - Filter tasks by "All Tasks," "Deadlines," and "Custom Tasks" to stay organized.
 
+🌓 **Canvas Sidebar Integration & Dark Mode Support** - Integrates directly into your Canvas sidebar with high-contrast, theme-adaptive styling matching native Canvas items in both light and dark modes (with mint green title links, crisp course labels, and dark-theme checkboxes).
+
 ## Installation
 
 ### From Release (Zip File) - Easiest

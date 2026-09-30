@@ -8,20 +8,88 @@
                      window.location.pathname.startsWith('/dashboard') || 
                      /^\/courses\/\d+\/?$/i.test(window.location.pathname);
 
+  function isDarkModeActive() {
+    const html = document.documentElement;
+    const body = document.body;
+
+    // Check Dark Reader or theme attributes
+    if (html.hasAttribute('data-darkreader-scheme') || 
+        html.getAttribute('data-darkreader-mode') ||
+        html.getAttribute('data-theme') === 'dark' ||
+        body?.getAttribute('data-theme') === 'dark') {
+      return true;
+    }
+
+    // Check common dark mode classes
+    if (html.classList.contains('dark') || 
+        html.classList.contains('dark-mode') || 
+        body?.classList.contains('dark') || 
+        body?.classList.contains('dark-mode') || 
+        body?.classList.contains('canvas-dark-mode') ||
+        body?.classList.contains('ic-theme-dark')) {
+      return true;
+    }
+
+    // Check system preference
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      return true;
+    }
+
+    // Check computed background lightness of body / sidebar / container
+    try {
+      const target = document.getElementById('right-side') || body || html;
+      if (target) {
+        const bg = window.getComputedStyle(target).backgroundColor;
+        const match = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+        if (match) {
+          const r = parseInt(match[1], 10);
+          const g = parseInt(match[2], 10);
+          const b = parseInt(match[3], 10);
+          // Perceived luminance
+          const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+          if (lum < 140) return true;
+        }
+      }
+    } catch (e) {}
+
+    return false;
+  }
+
+  function updateWidgetTheme(widget) {
+    if (!widget) widget = document.getElementById('better-canvas-sidebar-widget');
+    if (!widget) return;
+    if (isDarkModeActive()) {
+      widget.classList.add('dark-theme');
+    } else {
+      widget.classList.remove('dark-theme');
+    }
+  }
+
   function init() {
     if (!isHomePage) return;
 
-    // Wait for Canvas elements to load
-    const observer = new MutationObserver((mutations, obs) => {
+    // Observe changes for sidebar injection, native todo hiding, and theme changes
+    const observer = new MutationObserver(() => {
       const sidebar = document.getElementById('right-side');
-      
       if (sidebar) {
         injectIntoSidebar();
-        // Keep observing to ensure it stays there if Canvas re-renders the sidebar
       }
+      updateWidgetTheme();
     });
 
-    observer.observe(document.body, { childList: true, subtree: true });
+    observer.observe(document.body, { 
+      childList: true, 
+      subtree: true, 
+      attributes: true, 
+      attributeFilter: ['class', 'data-theme', 'style', 'data-darkreader-scheme'] 
+    });
+
+    // Listen for system theme changes
+    if (window.matchMedia) {
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+        updateWidgetTheme();
+      });
+    }
 
     // Initial check
     if (document.getElementById('right-side')) injectIntoSidebar();
@@ -29,26 +97,31 @@
 
   // 2. Inject into Sidebar (Right side)
   function injectIntoSidebar() {
-    if (document.getElementById('better-canvas-sidebar-widget')) {
-      const widget = document.getElementById('better-canvas-sidebar-widget');
-      const sidebar = document.getElementById('right-side');
-      if (sidebar.firstChild !== widget) sidebar.prepend(widget); // Keep at top
-      return;
-    }
     const sidebar = document.getElementById('right-side');
     if (!sidebar) return;
 
-    // Hide original elements
+    // Hide original elements and keep them hidden
     const originalTodo = sidebar.querySelectorAll('.todo-list-container, .coming_up, .recent_feedback, .todo-list-header, .coming_up_header');
-    originalTodo.forEach(el => el.style.display = 'none');
+    originalTodo.forEach(el => {
+      if (el.style.display !== 'none') el.style.display = 'none';
+    });
 
-    const widget = document.createElement('div');
+    let widget = document.getElementById('better-canvas-sidebar-widget');
+    if (widget) {
+      if (sidebar.firstChild !== widget) sidebar.prepend(widget); // Keep at top
+      updateWidgetTheme(widget);
+      return;
+    }
+
+    widget = document.createElement('div');
     widget.id = 'better-canvas-sidebar-widget';
     widget.className = 'sidebar-widget-integrated';
+    updateWidgetTheme(widget);
+
     widget.innerHTML = `
       <h2 class="sidebar-header-integrated">To Do</h2>
       <div id="better-canvas-sidebar-list" class="task-container-integrated">
-        <p style="padding: 1rem; color: #94a3b8; font-size: 0.8rem;">Loading your tasks...</p>
+        <p class="task-loading-integrated">Loading your tasks...</p>
       </div>
     `;
 
@@ -86,7 +159,7 @@
       if (!container) return;
 
       if (response.error) {
-        container.innerHTML = `<p style="padding: 1rem; color: #ef4444; font-size: 0.8rem;">Error: ${response.error}</p>`;
+        container.innerHTML = `<p class="task-error-integrated">Error: ${response.error}</p>`;
         return;
       }
 
@@ -106,11 +179,9 @@
           const date = task.dueDate ? new Date(task.dueDate) : null;
           
           let relative = { text: 'No Deadline', class: 'deadline-later' };
-          let timeStr = '';
           
           if (date) {
             relative = getRelativeTime(date);
-            timeStr = date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
           }
 
           return `
@@ -119,14 +190,14 @@
                  <button class="complete-btn-integrated" data-id="${task.id}" title="Mark as complete"></button>
                  <div class="task-info">
                     ${task.url ? `<a class="task-title-integrated" href="${task.url}" target="_blank">${task.title}</a>` : `<div class="task-title-integrated no-link">${task.title}</div>`}
-                    ${task.dueDate ? `
-                      <div class="task-due-details-integrated" style="font-size: 0.7rem; color: #697783; display: flex; align-items: center; gap: 4px; margin-top: 4px; font-weight: 500; opacity: 0.9;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; opacity: 0.7;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                        <span>${getDetailedDueDate(task.dueDate)}</span>
-                      </div>
-                    ` : ''}
+                    ${task.courseName ? `<div class="course-name-integrated">${task.courseName}</div>` : ''}
                     <div class="task-meta-integrated">
-                      <span class="course-name-integrated">${task.courseName}</span>
+                      ${task.dueDate ? `
+                        <div class="task-due-details-integrated">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="calendar-icon-integrated"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                          <span>${getDetailedDueDate(task.dueDate)}</span>
+                        </div>
+                      ` : '<div></div>'}
                       <span class="deadline-tag-integrated ${relative.class}">
                         ${relative.text}
                       </span>
@@ -153,8 +224,10 @@
         });
 
       } else {
-        container.innerHTML = '<p style="padding: 2rem; text-align: center; color: #94a3b8; font-size: 0.85rem;">No upcoming tasks.</p>';
+        container.innerHTML = '<p class="task-empty-integrated">No upcoming tasks.</p>';
       }
+
+      updateWidgetTheme();
     });
   }
 
